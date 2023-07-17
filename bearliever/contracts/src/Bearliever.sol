@@ -17,7 +17,7 @@ struct ResponseStruct {
 contract Bearliever is ERC721Enumerable {
     uint256 public constant BEAR_START_BLOCK = 6120000;
     uint256 public constant BEAR_END_BLOCK = 10430000;
-    uint256 public constant NUM_TX_THRESHOLD = 32;
+    uint256 public constant NUM_TX_THRESHOLD = 16;
     address public constant AXIOM_V1_QUERY_MAINNET_ADDR = 0xd617ab7f787adF64C2b5B920c251ea10Cd35a952;
 
     error ProofError();
