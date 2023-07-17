@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "../lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
-import "../lib/openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
+import "../lib/openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "./interfaces/IAxiomV1Query.sol";
 
 struct ResponseStruct {
@@ -14,7 +14,7 @@ struct ResponseStruct {
     IAxiomV1Query.StorageResponse[] storageResponses;
 }
 
-contract Bearliever is ERC721, IERC721Enumerable {
+contract Bearliever is ERC721Enumerable {
     uint256 public constant BEAR_START_BLOCK = 6120000;
     uint256 public constant BEAR_END_BLOCK = 10430000;
     uint256 public constant NUM_TX_THRESHOLD = 32;
@@ -28,9 +28,8 @@ contract Bearliever is ERC721, IERC721Enumerable {
 
     constructor() ERC721("Bearliever", "BLV") {}
 
-    function _validateData(ResponseStruct calldata response) private view returns (bool) {
+    function _validateData(ResponseStruct calldata response) private view {
         // Mainnet AxiomV1Query address
-        
         IAxiomV1Query axiomV1Query = IAxiomV1Query(AXIOM_V1_QUERY_MAINNET_ADDR);
         
         // Check that the responses are valid
@@ -53,12 +52,12 @@ contract Bearliever is ERC721, IERC721Enumerable {
         }
 
         // Get values from start block
-        uint256 startBlockNumber = response.blockResponses[0].blockNumber;
+        uint256 startBlockNumber = response.accountResponses[0].blockNumber;
         uint256 startNonce = response.accountResponses[0].nonce;
         address startAddr = response.accountResponses[0].addr;
 
         // Get values from end block
-        uint256 endBlockNumber = response.blockResponses[1].blockNumber;
+        uint256 endBlockNumber = response.accountResponses[1].blockNumber;
         uint256 endNonce = response.accountResponses[1].nonce;
         address endAddr = response.accountResponses[1].addr;
 
@@ -74,11 +73,11 @@ contract Bearliever is ERC721, IERC721Enumerable {
         }
 
         // Check that the proof submitted is for the same address that is submitting the transaction
-        if (startAddr != msg.sender || endAddr != msg.sender) {
+        // Note, we are checking that you ARE the sender just for this demo. You'll likely want 
+        // to revert if the sender is NOT the startAddr/endAddr.
+        if (startAddr == msg.sender || endAddr == msg.sender) {
             revert InvalidSenderError();
         }
-
-        return true;
     }
 
     function mint(ResponseStruct calldata response) external {
