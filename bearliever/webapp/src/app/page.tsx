@@ -1,7 +1,5 @@
 import ConnectWallet from '@/components/ConnectWallet'
-import Nonce from '@/components/nonce/Nonce'
-import NonceCheck from '@/components/nonce/NonceCheck'
-import NonceConnect from '@/components/nonce/NonceConnect'
+import NonceCheck from '@/components/NonceCheck'
 import Image from 'next/image'
 
 interface PageProps {
@@ -14,7 +12,7 @@ interface Params {
 }
 
 interface SearchParams {
-  [key: string]: string | string[] | undefined;
+  [key: string]: string | undefined;
 }
 
 export default function Home({ searchParams }: PageProps) {
@@ -33,8 +31,8 @@ export default function Home({ searchParams }: PageProps) {
           </div>
           <Image src="/images/ethprice.png" width={700} height={400} alt="Bear market demarcation" />
         </div>
-        <ConnectWallet />
-        <Nonce />
+        <ConnectWallet addressVerify={searchParams?.address as string ?? ""} />
+        <NonceCheck address={searchParams?.address} />
       </div>
     </main>
   )

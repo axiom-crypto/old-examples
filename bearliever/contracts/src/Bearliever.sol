@@ -75,7 +75,7 @@ contract Bearliever is ERC721Enumerable {
         // Check that the proof submitted is for the same address that is submitting the transaction
         // Note, we are checking that you ARE the sender just for this demo. You'll likely want 
         // to revert if the sender is NOT the startAddr/endAddr.
-        if (startAddr == msg.sender || endAddr == msg.sender) {
+        if (startAddr != msg.sender || endAddr != msg.sender) {
             revert InvalidSenderError();
         }
     }
