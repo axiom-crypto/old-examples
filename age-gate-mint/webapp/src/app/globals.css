@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  color: #99998a;
+  background: #10100e;
+}
+
+a {
+  color: #ffffe6;
+}
+
+a:hover {
+  color: #ffffff;
+}
