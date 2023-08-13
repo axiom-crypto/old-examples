@@ -49,7 +49,7 @@ export default async function Proof({ searchParams }: PageProps) {
     }
     return (
       <div>
-        { "Constructing a Query into Axiom to generate a proof. Please submit the transaction when prompted." }
+        { "Constructed a Query into Axiom whose contents you can view below. To generate a proof, use the botton at the bottom to submit an on-chain transaction to begin the proof generation process." }
       </div>
     )
   }
@@ -58,7 +58,7 @@ export default async function Proof({ searchParams }: PageProps) {
     <>
       <div className="flex flex-row w-full justify-between items-end">
         <div className="text-white text-3xl font-bold">
-          Generate Proof
+          Axiom Query
         </div>
         <div>
           <Link href="/">
