@@ -4,8 +4,9 @@ import { useAccount, useContractEvent, useContractRead, useContractWrite, usePre
 import { parseEther } from "viem";
 import { useCallback, useEffect } from "react";
 import Button from "../ui/Button";
-import { CodeBlock, dracula } from "react-code-blocks";
 import { useRouter } from "next/navigation";
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { irBlack } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 interface GenerateProofClientProps {
   keccakQueryResponse: string;
@@ -13,11 +14,11 @@ interface GenerateProofClientProps {
   blockNumber: number;
   axiomV1QueryAddress: string;
   axiomV1QueryAbi: any;
-  outStr: string;
+  queryData: string;
 }
 
 export default function GenerateProofClient(props: GenerateProofClientProps) {
-  const { keccakQueryResponse, query, blockNumber, axiomV1QueryAddress, axiomV1QueryAbi, outStr } = props;
+  const { keccakQueryResponse, query, blockNumber, axiomV1QueryAddress, axiomV1QueryAbi, queryData } = props;
   const { address } = useAccount();
   const router = useRouter();
 
@@ -104,7 +105,9 @@ export default function GenerateProofClient(props: GenerateProofClientProps) {
           Data to be proven:
         </div>
         <div className="text-sm font-mono">
-          <CodeBlock text={outStr} language="typescript" showLineNumbers={false} theme={dracula} />
+          <SyntaxHighlighter language="typescript" style={irBlack}>
+            { queryData }
+          </SyntaxHighlighter>
         </div>
       </div>
       <div className="flex flex-col items-center gap-2">

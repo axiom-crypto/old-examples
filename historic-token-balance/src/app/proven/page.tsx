@@ -1,9 +1,3 @@
-import BalancesForm from '@/components/balancesForm/BalancesForm';
-import GenerateProofServer from '@/components/generateProof/GenerateProofServer';
-import Navbar from '@/components/layout/Navbar';
-import { Axiom, AxiomConfig } from '@axiom-crypto/core';
-import { ethers } from 'ethers';
-import Image from 'next/image'
 import Link from 'next/link';
 
 interface PageProps {

@@ -9,10 +9,6 @@ export default async function BalancesForm({
 }) {
   const currentBlock = await getCurrentBlock();
 
-  const handleSubmit = (e: any) => {
-    console.log(e);
-  }
-
   const renderInputRow = (i: number) => {
     return (
       <div className="flex flex-row justify-start items-center gap-4" key={i}>

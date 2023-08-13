@@ -15,7 +15,7 @@ export default async function GenerateProofServer({
   }
   const { keccakQueryResponse, query } = await qb.build();
   const formattedStr = qb.asSortedFormattedString().replaceAll("\n","\n\n").replaceAll(", ","\n");
-  const outStr = formattedStr.slice(0, formattedStr.length - 2);
+  const queryData = formattedStr.slice(0, formattedStr.length - 2);
 
   return (
     <GenerateProofClient 
@@ -24,7 +24,7 @@ export default async function GenerateProofServer({
       blockNumber={queryRows[0].blockNumber}
       axiomV1QueryAddress={axiom.getAxiomQueryAddress() as string}
       axiomV1QueryAbi={axiom.getAxiomQueryAbi()}
-      outStr={outStr}
+      queryData={queryData}
     />
   )
 }

@@ -22,14 +22,14 @@ export default function ConnectWallet({ addressVerify }: { addressVerify: string
 
   const disconnectWallet = () => {
     disconnect();
-    router.push(pathname);
+    router.replace(pathname);
   }
 
   useEffect(() => {
-    if (isConnected && address && addressVerify !== address) {
-      router.push(`${pathname}/?address=${address}&${searchParams}`);
+    if (isConnected && address && addressVerify !== address && !searchParams.get("address")) {
+      router.replace(`${pathname}/?address=${address}&${searchParams}`);
     }
-  }, [address, addressVerify, isConnected, router, pathname]);
+  }, [address, addressVerify, isConnected, router, pathname, searchParams]);
 
   if (isConnected) {
     return (

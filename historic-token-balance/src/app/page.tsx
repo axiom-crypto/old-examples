@@ -1,6 +1,4 @@
 import BalancesForm from '@/components/balancesForm/BalancesForm';
-import Navbar from '@/components/layout/Navbar';
-import Image from 'next/image'
 
 interface PageProps {
   params: Params;
@@ -15,8 +13,7 @@ interface SearchParams {
   [key: string]: string | undefined;
 }
 
-export default function Home({ searchParams }: PageProps) {
-  console.log(searchParams);
+export default async function Home({ searchParams }: PageProps) {
   let address = searchParams?.address as string ?? "";
   if (address.includes(",")) {
     address = address.split(",")[0];

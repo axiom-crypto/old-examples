@@ -41,7 +41,6 @@ export default async function Proof({ searchParams }: PageProps) {
     }
     queryRows.push(queryRow);
   }
-  console.log(queryRows);
 
   const renderMessage = () => {
     if (!walletAddress || queryRows.length === 0) {
