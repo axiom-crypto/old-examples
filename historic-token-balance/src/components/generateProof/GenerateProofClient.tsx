@@ -7,6 +7,7 @@ import Button from "../ui/Button";
 import { useRouter } from "next/navigation";
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { irBlack } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import Link from "next/link";
 
 interface GenerateProofClientProps {
   keccakQueryResponse: string;
@@ -80,7 +81,10 @@ export default function GenerateProofClient(props: GenerateProofClientProps) {
     return (
       <div className="flex flex-col items-center">
         <div>
-          { "Proof successfully submitted to Axiom. Proof can take 1-3 minutes to generate..." }
+          { "Proof successfully submitted to Axiom. Proof can take 1-3 minutes to generate. " }
+          <Link href={`https://explorer.axiom.xyz/mainnet/query/${keccakQueryResponse}`} target="_blank">
+            { "View progress." }
+          </Link>
         </div>
         <div>
           { "You'll automatically be redirected when the proof is complete." }
