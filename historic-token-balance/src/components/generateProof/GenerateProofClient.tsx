@@ -2,9 +2,8 @@
 
 import { useAccount, useContractEvent, useContractRead, useContractWrite, usePrepareContractWrite } from "wagmi";
 import { parseEther } from "viem";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import Button from "../ui/Button";
-import Link from "next/link";
 import { CodeBlock, dracula } from "react-code-blocks";
 import { useRouter } from "next/navigation";
 
@@ -40,16 +39,16 @@ export default function GenerateProofClient(props: GenerateProofClientProps) {
     args: [keccakQueryResponse],
   });
 
-  const proofGeneratedAction = () => {
+  const proofGeneratedAction = useCallback(() => {
     router.push(`proven/?address=${address}&keccakQueryResponse=${keccakQueryResponse}`);
-  }
+  }, [router, address, keccakQueryResponse]);
 
   // If the `keccakQueryResponse` has status 2 (Fulfilled), then the proof has been generated
   useEffect(() => {
     if (queryExists?.[1] === 2) {
       proofGeneratedAction();
     }
-  }, [queryExists]);
+  }, [queryExists, proofGeneratedAction]);
   
   // Add listener for QueryFulfilled event
   useContractEvent({
