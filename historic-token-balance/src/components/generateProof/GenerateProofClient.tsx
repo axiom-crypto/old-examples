@@ -83,7 +83,7 @@ export default function GenerateProofClient(props: GenerateProofClientProps) {
         <div>
           { "Proof successfully submitted to Axiom. Proof can take 1-3 minutes to generate. " }
           <Link href={`https://explorer.axiom.xyz/mainnet/query/${keccakQueryResponse}`} target="_blank">
-            { "View progress." }
+            { "View progress (new window)." }
           </Link>
         </div>
         <div>
