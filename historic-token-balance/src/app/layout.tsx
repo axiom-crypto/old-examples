@@ -35,7 +35,7 @@ export default function RootLayout({
         <Providers>
           <main className="flex min-h-screen flex-col justify-start items-center gap-10">
             <Navbar />
-            <div className="flex flex-col w-[43em] items-center gap-4 p-4">
+            <div className="flex flex-col w-[52em] items-center gap-4 p-4">
               {children}
             </div>
             </main>

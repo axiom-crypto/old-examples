@@ -23,21 +23,22 @@ export default async function Proof({ searchParams }: PageProps) {
   console.log(searchParams);
   const address = searchParams?.address as string ?? "";
 
-  // Parse searchParams for blockNumbers and contractAddresses
+  // Parse searchParams for blockNumbers, contractAddresses, and slots
   const walletAddress = searchParams?.walletAddress;
   const blockNumbers = searchParams?.blockNumber ?? [];
   const contractAddresses = searchParams?.contractAddress ?? [];
+  const slots = searchParams?.slot as string[] ?? [];
   let queryRows = [];
   for (let i = 0; i < blockNumbers?.length; i++) {
     if (blockNumbers[i] === '' || contractAddresses[i] === '') {
       continue;
     }
     const abiCoder = ethers.AbiCoder.defaultAbiCoder();
-    const slot = ethers.keccak256(abiCoder.encode(["address", "uint256"], [walletAddress, 0]));
+    const mappedSlot = ethers.keccak256(abiCoder.encode(["address", "uint256"], [walletAddress, slots[i]]));
     const queryRow = {
       blockNumber: parseInt(blockNumbers[i]),
       address: contractAddresses[i],
-      slot,
+      slot: mappedSlot,
     }
     queryRows.push(queryRow);
   }
