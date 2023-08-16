@@ -103,11 +103,11 @@ async function claimTokensTransaction(keccakQueryResponse: string) {
     accountResponses: [] as SolidityAccountResponse[],
     storageResponses: [] as SolidityStorageResponse[],
   };
-  const witness: ValidationWitnessResponse = ax.query.getValidationWitness(
+  const witness: ValidationWitnessResponse | undefined = ax.query.getValidationWitness(
     responseTree,
     blockNumber,
     walletAddress
-  ) as ValidationWitnessResponse;
+  );
   if (witness.accountResponse) {
     responses.accountResponses.push(witness.accountResponse);
   }
@@ -119,12 +119,12 @@ async function claimTokensTransaction(keccakQueryResponse: string) {
     distributorAbi,
     wallet
   );
-  const txResult = await distributor.claimTokens(responses);
+  const txResult = await distributor.claim(responses);
   console.log("setNumber tx", txResult);
   const txReceipt = await txResult.wait();
   console.log("setNumber Receipt", txReceipt);
 
-  console.log("Congrats! Now you have DST tokens!");
+  console.log("Congrats! Now you have a Distributor NFT!");
 }
 
 async function getFirstTxBlockNumber(address: string) {
