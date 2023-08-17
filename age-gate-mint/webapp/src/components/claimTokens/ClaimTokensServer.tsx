@@ -32,7 +32,6 @@ export default async function ClaimTokens(props: ClaimTokensProps) {
   );
   
   if (!witness) {
-    // You'll likely want to fail gracefully here instead of throwing.
     return (
       <div>
         ValidationWitness not found for this query. This can happen if the keccakQueryResponse returns too early. Try refreshing the page.
