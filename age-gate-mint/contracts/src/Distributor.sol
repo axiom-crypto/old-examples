@@ -17,6 +17,7 @@ contract Distributor is ERC721Enumerable {
     uint256 public constant ACCOUNT_AGE_THRESHOLD = 250;
     address public constant AXIOM_V1_QUERY_GOERLI_ADDR = 0x4Fb202140c5319106F15706b1A69E441c9536306;
 
+    /// @notice True if the `account` has already claimed.
     mapping (address => bool) public hasMinted;
 
     error ProofError();
@@ -79,7 +80,7 @@ contract Distributor is ERC721Enumerable {
         }
     }
 
-    /// @notice Claim the airdrop for the account with an Axiom query response.
+    /// @notice Claim the NFT for the account with an Axiom query response.
     /// @param axiomResponse The Axiom query response.
     /// @dev This asserts `_validateData` doesn't revert then calls `_safeMint`.
     function claim(ResponseStruct calldata axiomResponse) external {
