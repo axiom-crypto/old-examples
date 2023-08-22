@@ -28,40 +28,43 @@ contract Distributor is ERC721Enumerable {
 
     constructor() ERC721("Distributor", "DST") {}
 
-    function _validateData(ResponseStruct calldata response) private view {
+    /// @notice Validate axiomResponse and check that account age meets threshold
+    /// @param axiomResponse The Axiom query response.
+    /// @dev Reverts if proof isn't valid, if the account has 0 transactions, if the user isn't the same as the account for which the proof was generated,and that the account age meets the threshold
+    function _validateData(ResponseStruct calldata axiomResponse) private view {
         // Mainnet AxiomV1Query address
         IAxiomV1Query axiomV1Query = IAxiomV1Query(AXIOM_V1_QUERY_GOERLI_ADDR);
         
         // Check that the responses are valid
         bool valid = axiomV1Query.areResponsesValid(
-            response.keccakBlockResponse,
-            response.keccakAccountResponse,
-            response.keccakStorageResponse,
-            response.blockResponses,
-            response.accountResponses,
-            response.storageResponses
+            axiomResponse.keccakBlockResponse,
+            axiomResponse.keccakAccountResponse,
+            axiomResponse.keccakStorageResponse,
+            axiomResponse.blockResponses,
+            axiomResponse.accountResponses,
+            axiomResponse.storageResponses
         );
         if (!valid) {
             revert ProofError();
         }
 
         // Decode the query metadata 
-        uint256 length = response.accountResponses.length;
+        uint256 length = axiomResponse.accountResponses.length;
         if (length != 1) {
             revert InvalidDataLengthError();
         }
 
         // Get values for first transaction from submitted proof response struct
-        uint256 blockNumber = response.accountResponses[0].blockNumber;
-        uint256 nonce = response.accountResponses[0].nonce;
-        address addr = response.accountResponses[0].addr;
+        uint256 blockNumber = axiomResponse.accountResponses[0].blockNumber;
+        uint256 nonce = axiomResponse.accountResponses[0].nonce;
+        address addr = axiomResponse.accountResponses[0].addr;
 
         // Get current block
         uint256 currentBlock = block.number;
 
         // Check that the account nonce at the end of the bear market is a set threshold above the 
         // account nonce at the start of the bear market, since it acts as a transaction counter
-        if (nonce != 1) {
+        if (nonce == 0) {
             revert InvalidNonceError();
         }
 
@@ -76,14 +79,17 @@ contract Distributor is ERC721Enumerable {
         }
     }
 
-    function claim(ResponseStruct calldata response) external {
+    /// @notice Claim the airdrop for the account with an Axiom query response.
+    /// @param axiomResponse The Axiom query response.
+    /// @dev This asserts `_validateData` doesn't revert then calls `_safeMint`.
+    function claim(ResponseStruct calldata axiomResponse) external {
         // Ensure current address has not yet claimed their tokens
         if (hasMinted[_msgSender()]) {
             revert AlreadyClaimedError();
         }
 
         // Validates the incoming ResponseStruct
-        _validateData(response);
+        _validateData(axiomResponse);
         
         // Transfers tokens if ZK proof and data are valid
         hasMinted[_msgSender()] = true;

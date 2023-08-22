@@ -114,6 +114,8 @@ async function claimTokensTransaction(keccakQueryResponse: string) {
     accountResponses: [] as SolidityAccountResponse[],
     storageResponses: [] as SolidityStorageResponse[],
   };
+  // Checks the witness data against the keccakQueryResponse
+  // This allows a user to prove that their claimed data is actually committed to in keccakQueryResponse
   const witness: ValidationWitnessResponse | undefined = ax.query.getValidationWitness(
     responseTree,
     blockNumber,
@@ -125,11 +127,14 @@ async function claimTokensTransaction(keccakQueryResponse: string) {
 
   console.log(responses);
   
+  // Instance of the distributor contract - we'll call methods from this contract later
   const distributor = new ethers.Contract(
     distributorAddress,
     distributorAbi,
     wallet
   );
+
+  // Pass in our verified response struct to the claim function in the smart contract
   const txResult = await distributor.claim(responses);
   console.log("setNumber tx", txResult);
   const txReceipt = await txResult.wait();
