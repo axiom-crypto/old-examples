@@ -64,6 +64,7 @@ async function submitQuery(qb: QueryBuilder) {
   console.log("queryHash", queryHash);
   console.log("query", query);
   
+  // Create instance of the axiomV1Query contract - later we'll call methods from this contract
   const axiomV1Query = new ethers.Contract(
     ax.getAxiomQueryAddress() as string,
     ax.getAxiomQueryAbi(),
