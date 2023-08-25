@@ -29,6 +29,7 @@ if (!process.env.PRIVATE_KEY) {
   throw new Error("PRIVATE_KEY environment variable is not set");
 }
 
+// Initialize an instance of the Axiom SDK with a JSON-RPC provider and a chainId
 const config: AxiomConfig = {
   providerUri,
   version: "v1",
@@ -37,6 +38,7 @@ const config: AxiomConfig = {
 };
 const ax = new Axiom(config);
 
+
 async function buildQuery() {
   // Get account age data from Provider
   const blockNumber = await getFirstTxBlockNumber(walletAddress);
@@ -44,8 +46,10 @@ async function buildQuery() {
   if (isNaN(blockNumber)) {
     throw new Error("blockNumber is NaN");
   }
-
+  
+  // Build a new query
   const qb = ax.newQueryBuilder();
+  // Add queries one by one to the QueryBuilder object
   await qb.append({
     blockNumber: blockNumber,
     address: walletAddress,
@@ -54,17 +58,20 @@ async function buildQuery() {
 }
 
 async function submitQuery(qb: QueryBuilder) {
+  // Obtain the keccakQueryResponse and serialized query
   const { keccakQueryResponse, queryHash, query } = await qb.build();
   console.log("keccakQueryResponse", keccakQueryResponse);
   console.log("queryHash", queryHash);
   console.log("query", query);
   
+  // Create instance of the axiomV1Query contract - later we'll call methods from this contract
   const axiomV1Query = new ethers.Contract(
     ax.getAxiomQueryAddress() as string,
     ax.getAxiomQueryAbi(),
     wallet
   );
-
+  
+  // Create an on-chain transaction encoding this query using the sendQuery function in the AxiomV1Query contract
   const txResult = await axiomV1Query.sendQuery(
     keccakQueryResponse,
     walletAddress,
@@ -78,13 +85,17 @@ async function submitQuery(qb: QueryBuilder) {
 
   console.log("Waiting for proof to be generated. This may take a few minutes...")
 
+  // Listen for the QueryFulfilled event emitted by the Axiom contract indicating the proof has been generated
   axiomV1Query.on("QueryFulfilled", async (keccakQueryResponse, _payment, _prover) => {
     console.log("Proof generated! Calling claimTokensTransaction...")
+    // Pass the keccackQueryResponse to the claimTokensTransaction function which will verify the proof and mint tokens
     claimTokensTransaction(keccakQueryResponse);
   });
 }
 
 async function claimTokensTransaction(keccakQueryResponse: string) {
+  // Get the response tree from keccakQueryResponse is the hash of 3 Merkle roots
+  // Get the roots of trees for block, account, and storage queries - view sampleResponseTree.txt for an example
   const responseTree = await ax.query.getResponseTreeForKeccakQueryResponse(keccakQueryResponse);
   if (!responseTree) {
     throw new Error("Response tree is undefined");
@@ -103,6 +114,8 @@ async function claimTokensTransaction(keccakQueryResponse: string) {
     accountResponses: [] as SolidityAccountResponse[],
     storageResponses: [] as SolidityStorageResponse[],
   };
+  // Checks the witness data against the keccakQueryResponse
+  // This allows a user to prove that their claimed data is actually committed to in keccakQueryResponse
   const witness: ValidationWitnessResponse | undefined = ax.query.getValidationWitness(
     responseTree,
     blockNumber,
@@ -114,11 +127,14 @@ async function claimTokensTransaction(keccakQueryResponse: string) {
 
   console.log(responses);
   
+  // Instance of the distributor contract - we'll call methods from this contract later
   const distributor = new ethers.Contract(
     distributorAddress,
     distributorAbi,
     wallet
   );
+
+  // Pass in our verified response struct to the claim function in the smart contract
   const txResult = await distributor.claim(responses);
   console.log("setNumber tx", txResult);
   const txReceipt = await txResult.wait();
@@ -127,6 +143,7 @@ async function claimTokensTransaction(keccakQueryResponse: string) {
   console.log("Congrats! Now you have a Distributor NFT!");
 }
 
+// Helper function to get the block number of the first transaction for an address
 async function getFirstTxBlockNumber(address: string) {
   const res = await fetch(process.env.ALCHEMY_PROVIDER_URI_GOERLI as string, {
     method: "POST",
