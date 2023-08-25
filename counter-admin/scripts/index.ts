@@ -24,6 +24,7 @@ if (!process.env.PRIVATE_KEY) {
   throw new Error("PRIVATE_KEY environment variable is not set");
 }
 
+// Initialize an instance of the Axiom SDK with a JSON-RPC provider and a chainId
 const config: AxiomConfig = {
   providerUri,
   version: "v1",
@@ -49,7 +50,9 @@ const queryData = [
 ];
 
 async function buildQuery() {
+  // Build a new query
   const qb = ax.newQueryBuilder();
+  // Add queries one by one to the QueryBuilder object
   await qb.append(queryData[0]);
   await qb.append(queryData[1]);
   // await qb.append(queryData[2]);
@@ -57,17 +60,20 @@ async function buildQuery() {
 }
 
 async function submitQuery(qb: QueryBuilder) {
+  // Obtain the keccakQueryResponse and serialized query
   const { keccakQueryResponse, queryHash, query } = await qb.build();
   console.log("keccakQueryResponse", keccakQueryResponse);
   console.log("queryHash", queryHash);
   console.log("query", query);
   
+  // Create instance of the axiomV1Query contract - later we'll call methods from this contract
   const axiomV1Query = new ethers.Contract(
     ax.getAxiomQueryAddress() as string,
     ax.getAxiomQueryAbi(),
     wallet
   );
 
+  // Create an on-chain transaction encoding this query using the sendQuery function in the AxiomV1Query contract
   const txResult = await axiomV1Query.sendQuery(
     keccakQueryResponse,
     wallet.address,
@@ -117,6 +123,7 @@ async function queryTransaction(qb: QueryBuilder) {
     "0xe162aef9009a7c65cb8d0c7992b1086de24c2a149b9b0d3db4ed7e64df46fa0f"
   ) as ValidationWitnessResponse;
 
+  // Listen for the QueryFulfilled event emitted by the Axiom contract indicating the proof has been generated
   axiomV1Query.on("QueryFulfilled", async (keccakQueryResponse, _payment, _prover) => {
     // Validate that this query is the one that we want to use
     const calculatedResponse = keccak256(ethers.solidityPacked(["bytes32", "bytes32", "bytes32"], [keccakBlockResponse, keccakAccountResponse, keccakStorageResponse]));
@@ -126,7 +133,7 @@ async function queryTransaction(qb: QueryBuilder) {
     console.log("keccakQueryResponse", keccakQueryResponse);
     console.log("calculatedResponse", calculatedResponse);
 
-    // Now you can use the queried data in a smart contract
+    // Now you can use the queried data in our smart contract
     const specialCounter = new ethers.Contract(
       specialCounterAddress,
       specialCounterAbi,
@@ -169,6 +176,8 @@ async function setNumberTransaction(qb: QueryBuilder) {
     storageResponses: [] as SolidityStorageResponse[],
   };
   for (let i = 0; i < queryData.length; i++) {
+    // Checks the witness data against the keccakQueryResponse
+    // This allows a user to prove that their claimed data is actually committed to in keccakQueryResponse
     const storageWitness: ValidationWitnessResponse = ax.query.getValidationWitness(
       responseTree,
       queryData[i].blockNumber,

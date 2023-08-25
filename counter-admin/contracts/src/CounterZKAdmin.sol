@@ -28,28 +28,31 @@ contract CounterZKAdmin {
         s_axiomV1Query = IAxiomV1Query(axiomV1QueryGoerliAddress);
     }
 
-    function _validateQuery(ResponseStruct calldata response) internal view {
+    /// @notice Validate axiomResponse 
+    /// @param axiomResponse The Axiom query response.
+    /// @dev Reverts if proof isn't valid, if the query metadata doesn't have at least 2 responses, if the query wasn't fulfilled, if the sender isn't the refundee, or if the contract address that was used to make the query isn't the AxiomV1Query contract address.
+    function _validateQuery(ResponseStruct calldata axiomResponse) internal view {
         // Check that the responses are valid
         bool valid = s_axiomV1Query.areResponsesValid(
-            response.keccakBlockResponse,
-            response.keccakAccountResponse,
-            response.keccakStorageResponse,
-            response.blockResponses,
-            response.accountResponses,
-            response.storageResponses
+            axiomResponse.keccakBlockResponse,
+            axiomResponse.keccakAccountResponse,
+            axiomResponse.keccakStorageResponse,
+            axiomResponse.blockResponses,
+            axiomResponse.accountResponses,
+            axiomResponse.storageResponses
         );
         if (!valid) {
             revert ProofError();
         }
 
         // Decode the query metadata and ensure that we have at least 2 responses
-        uint256 length = response.storageResponses.length;
+        uint256 length = axiomResponse.storageResponses.length;
         if (length < 2) {
             revert NotEnoughDataError();
         }
 
         for (uint256 i = 0; i < length; i++) {
-            uint256 value = response.storageResponses[i].value;
+            uint256 value = axiomResponse.storageResponses[i].value;
 
             // Get the AxiomQueryState enum value from storage value and validate that the query 
             // was indeed fulfilled
@@ -69,24 +72,29 @@ contract CounterZKAdmin {
             // Get the contract address that was used to make the query and ensure that the address
             // is indeed the AxiomV1Query contract address (versus a spoof contract that would send
             // spoofed data)
-            address claimedAxiomContractAddress = response.storageResponses[i].addr;
+            address claimedAxiomContractAddress = axiomResponse.storageResponses[i].addr;
             if (claimedAxiomContractAddress != address(s_axiomV1Query)) {
                 revert InvalidSenderError();
             }
         }
     }
 
+    /// @notice Set a new number
+    /// @param axiomResponse The Axiom query response.
+    /// @dev Calls _validateQuery first and then sets the number.
     function setNumber(
         uint256 newNumber,
-        ResponseStruct calldata response
+        ResponseStruct calldata axiomResponse
     ) public {
-        // Validate the incoming response data
-        _validateQuery(response);
+        // Validate the incoming axiomResponse data
+        _validateQuery(axiomResponse);
 
         // Any user who passes the above validation can set the number
         s_number = newNumber;
     }
 
+    /// @notice Increment the counter by one
+    /// @dev Lets anyone increment the counter by one
     function increment() public {
         // Anyone can increment this counter
         s_number++;
