@@ -23,6 +23,7 @@ if (!process.env.PRIVATE_KEY) {
   throw new Error("PRIVATE_KEY environment variable is not set");
 }
 
+// Initialize an instance of the Axiom SDK with a JSON-RPC provider and a chainId
 const config: AxiomConfig = {
   providerUri,
   version: "v1",
@@ -40,25 +41,31 @@ const queryData = [
   }
 ];
 
+
 async function buildQuery() {
+  // Build a new query
   const qb = ax.newQueryBuilder();
+  // Add queries one by one to the QueryBuilder object
   await qb.append(queryData[0]);
   await qb.append(queryData[1]);
   return qb;
 }
 
 async function submitQuery(qb: QueryBuilder) {
+  // Obtain the keccakQueryResponse and serialized query
   const { keccakQueryResponse, queryHash, query } = await qb.build();
   console.log("keccakQueryResponse", keccakQueryResponse);
   console.log("queryHash", queryHash);
   console.log("query", query);
   
+  // Create instance of the axiomV1Query contract - later we'll call methods from this contract
   const axiomV1Query = new ethers.Contract(
     ax.getAxiomQueryAddress() as string,
     ax.getAxiomQueryAbi(),
     wallet
   );
 
+  // Create an on-chain transaction encoding this query using the sendQuery function in the AxiomV1Query contract
   const txResult = await axiomV1Query.sendQuery(
     keccakQueryResponse,
     wallet.address,
@@ -70,12 +77,16 @@ async function submitQuery(qb: QueryBuilder) {
   const txReceipt = await txResult.wait(); 
   console.log("sendQuery Receipt", txReceipt);
 
+  // Listen for the QueryFulfilled event emitted by the Axiom contract indicating the proof has been generated
   axiomV1Query.on("QueryFulfilled", async (keccakQueryResponse, _payment, _prover) => {
+    // Pass the keccackQueryResponse to the mintTransaction function which will verify the proof and mint the NFT
     mintTransaction(keccakQueryResponse);
   });
 }
 
 async function mintTransaction(keccakQueryResponse: string) {
+  // Get the response tree from keccakQueryResponse is the hash of 3 Merkle roots
+  // Get the roots of trees for block, account, and storage queries - view sampleResponseTree.txt for an example
   const responseTree = await ax.query.getResponseTreeForKeccakQueryResponse(keccakQueryResponse);
   // const responseTree = await qb.getResponseTree();
   if (!responseTree) {
@@ -94,6 +105,8 @@ async function mintTransaction(keccakQueryResponse: string) {
     storageResponses: [] as SolidityStorageResponse[],
   };
   for (let i = 0; i < queryData.length; i++) {
+  // Checks the witness data against the keccakQueryResponse
+  // This allows a user to prove that their claimed data is actually committed to in keccakQueryResponse
     const witness: ValidationWitnessResponse = ax.query.getValidationWitness(
       responseTree,
       queryData[i].blockNumber,
@@ -105,11 +118,14 @@ async function mintTransaction(keccakQueryResponse: string) {
   }
   console.log(responses);
   
+  // Instance of the bearliver contract - we'll call methods from this contract later
   const bearliever = new ethers.Contract(
     bearlieverAddress,
     bearlieverAbi,
     wallet
   );
+
+  // Pass in our verified response struct to the claim function in the smart contract
   const txResult = await bearliever.mint(responses);
   console.log("setNumber tx", txResult);
   const txReceipt = await txResult.wait();
