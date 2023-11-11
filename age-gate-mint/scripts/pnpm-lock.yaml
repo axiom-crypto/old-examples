@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -24,7 +24,7 @@ packages:
   /@axiom-crypto/core@0.3.6:
     resolution: {integrity: sha512-WyXWPT5xMc0Da04EVhWiHVMVjc2Lyjb+d8NjiniOm23xs3m86t36sAQnOP+EgDwBcIn8d0PO7H3Ds9wUuLEs8g==}
     dependencies:
-      axios: 1.4.0
+      axios: 1.6.1
       ethers: 6.6.3
       graphql: 16.7.1
       graphql-request: 5.2.0(graphql@16.7.1)
@@ -82,8 +82,8 @@ packages:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
     dev: false
 
-  /axios@1.4.0:
-    resolution: {integrity: sha512-S4XCWMEmzvo64T9GfvQDOXgYRDJ/wsSZc7Jvdgx5u1sd0JwsuPLqb3SYmusag+edF6ziyMensPVqLTSc1PiSEA==}
+  /axios@1.6.1:
+    resolution: {integrity: sha512-vfBmhDpKafglh0EldBEbVuoe7DyAavGSLWhuSm5ZSEKQnHhBf0xAAwybbNH1IkrJNGnS/VG4I5yxig1pCEXE4g==}
     dependencies:
       follow-redirects: 1.15.2
       form-data: 4.0.0
