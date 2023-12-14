@@ -9,3 +9,6 @@ export const shortenAddress = (address: string) => {
 export const numberToHex = (num: number) => {
   return `0x${num.toString(16)}`;
 }
+
+export const classes = (...classNames: (string | undefined | boolean)[]) =>
+  classNames.filter((c) => !!c).join(' ');
